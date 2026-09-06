@@ -2,6 +2,8 @@
 
 Este repositorio reúne configuraciones `direnv` para trabajar con varias versiones de iDempiere sin mezclar Java, Maven, repositorios de dependencias, instalaciones de Eclipse ni workspaces. Cada subdirectorio es un entorno independiente y su archivo `.envrc` es la fuente de verdad.
 
+![Entorno aislado de desarrollo para iDempiere 13](assets/idempiere13-entorno-aislado.png)
+
 ## Versiones disponibles
 
 | Directorio | Rama de iDempiere | Java | Maven | Comando de build | Git asistido |
