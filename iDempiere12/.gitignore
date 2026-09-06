@@ -1,0 +1,10 @@
+.direnv/
+.local-bin/
+.m2/
+.mvn/
+.p2/
+apache-maven-3.9.11/
+eclipse/
+workspace-12/
+workspace/
+sources/

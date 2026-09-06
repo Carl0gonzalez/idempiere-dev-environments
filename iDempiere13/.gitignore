@@ -1,0 +1,8 @@
+.direnv/
+.idempiere-git.env
+.local-bin/
+.m2/
+.p2/
+eclipse/
+workspace-13/
+sources/

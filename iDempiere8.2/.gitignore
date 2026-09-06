@@ -1,0 +1,9 @@
+.direnv/
+.local-bin/
+.m2/
+.mvn/
+.p2/
+apache-maven-3.6.3/
+eclipse/
+workspace-8.2/
+sources/

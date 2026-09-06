@@ -1,0 +1,16 @@
+# Herramientas y configuración local de Codex/agentes
+/.agents/
+/.codex/
+/skills/
+
+# Estado local de direnv y configuración privada de los entornos
+**/.direnv/
+**/.idempiere-git.env
+
+# Configuración local de editores y sistema operativo
+/.idea/
+/.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
