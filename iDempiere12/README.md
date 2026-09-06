@@ -1,30 +1,30 @@
-# Entorno aislado de iDempiere 12
+# Isolated iDempiere 12 environment
 
-Configuración de desarrollo local basada en `direnv` para la rama `release-12`. Aísla Java 17, Maven 3.9.11, dependencias, P2, Eclipse, workspace y fuentes.
+[Spanish version](README.es.md) · [Back to the main guide](../README.md)
 
-[Volver a la guía general](../README.md)
+This `direnv`-based local development configuration targets the `release-12` branch. It isolates Java 17, Maven 3.9.11, dependencies, P2, Eclipse, the workspace, and sources.
 
-## Resumen técnico
+## Technical summary
 
-| Componente | Configuración |
+| Component | Configuration |
 |---|---|
-| Rama | `release-12` |
-| Revisión esperada | `12.0.0` |
+| Branch | `release-12` |
+| Expected revision | `12.0.0` |
 | Java | JDK 17 |
-| Maven | distribución local `apache-maven-3.9.11/` |
-| Fuentes | `sources/idempiere/` |
+| Maven | local `apache-maven-3.9.11/` distribution |
+| Sources | `sources/idempiere/` |
 | Workspace | `workspace-12/` |
-| Repositorio Maven | `.m2/repository/` |
-| Configuración P2 | `.p2/configuration/` |
-| Repositorio Git | oficial de iDempiere |
+| Maven repository | `.m2/repository/` |
+| P2 configuration | `.p2/configuration/` |
+| Git repository | official iDempiere repository |
 
-## Preparación
+## Setup
 
-Instale `direnv`, Git y un JDK 17, y active el hook de `direnv`. Dentro de este directorio:
+Install `direnv`, Git, and a JDK 17, then enable the `direnv` hook. Inside this directory:
 
-1. Descomprima Maven 3.9.11 en `apache-maven-3.9.11/`.
-2. Instale Eclipse en `eclipse/`, con el ejecutable en `eclipse/eclipse`.
-3. Autorice y compruebe el entorno.
+1. Extract Maven 3.9.11 into `apache-maven-3.9.11/`.
+2. Install Eclipse in `eclipse/`, with its executable at `eclipse/eclipse`.
+3. Authorize and diagnose the environment.
 
 ```sh
 cd iDempiere12
@@ -32,20 +32,20 @@ direnv allow
 idempiere-doctor
 ```
 
-`direnv allow` crea la estructura local, genera `.m2/settings.xml` si falta y reconstruye `.local-bin`. No instala componentes ni clona el proyecto.
+`direnv allow` creates the local structure, generates `.m2/settings.xml` when missing, and rebuilds `.local-bin`. It does not install components or clone the project.
 
-## Clonar y construir
+## Clone and build
 
 ```sh
 idempiere-clone
 mvn12 clean verify
 ```
 
-El asistente clona `release-12` desde el repositorio oficial en `sources/idempiere`. Conserva un clon existente y se niega a escribir sobre un destino ocupado por otros archivos.
+The helper clones `release-12` from the official repository into `sources/idempiere`. It preserves an existing clone and refuses to write over a destination occupied by other files.
 
-`mvn12` usa siempre `apache-maven-3.9.11/bin/mvn`, el `settings.xml` y el repositorio Maven de este entorno. Java se ejecuta en modo headless sólo durante Maven.
+`mvn12` always uses `apache-maven-3.9.11/bin/mvn` together with this environment's `settings.xml` and Maven repository. Java runs in headless mode only during Maven execution.
 
-El entorno administra una sola copia de `-Drevision=12.0.0` en `MAVEN_OPTS`: primero elimina las copias previas y luego añade una, manteniendo intactas las demás opciones heredadas. La ubicación del repositorio también se pasa directamente en cada invocación de `mvn12`.
+The environment manages exactly one copy of `-Drevision=12.0.0` in `MAVEN_OPTS`: it removes previous copies before adding one and preserves every other inherited option. The repository location is also passed directly to each `mvn12` invocation.
 
 ## Eclipse
 
@@ -53,45 +53,45 @@ El entorno administra una sola copia de `-Drevision=12.0.0` en `MAVEN_OPTS`: pri
 eclipse-start
 ```
 
-El comando fija Java 17, `workspace-12`, `.p2/configuration` y `GDK_BACKEND=x11`.
+The command fixes Java 17, `workspace-12`, `.p2/configuration`, and `GDK_BACKEND=x11`.
 
 ```sh
 eclipse-choose
 eclipse-here
 ```
 
-`eclipse-choose` muestra el selector y propone el workspace aislado. `eclipse-here` es un alias de compatibilidad que delega en `eclipse-start`; no cambia el workspace según el directorio actual.
+`eclipse-choose` displays the chooser and proposes the isolated workspace. `eclipse-here` is a compatibility alias that delegates to `eclipse-start`; it does not change the workspace according to the current directory.
 
-## Comandos disponibles
+## Command reference
 
-| Comando | Acción y condiciones |
+| Command | Action and conditions |
 |---|---|
-| `mvn12 [argumentos]` | Ejecuta Maven 3.9.11 con Java y repositorio aislados. |
-| `eclipse-start` | Abre Eclipse con el workspace fijo. |
-| `eclipse-here` | Alias compatible de `eclipse-start`. |
-| `eclipse-choose` | Abre Eclipse con selector de workspace. |
-| `idempiere-root` | Abre una shell nueva en las fuentes; requiere el clon. |
-| `idempiere-clone` | Clona por red la rama oficial, sin sobrescribir contenido. |
-| `idempiere-fix-maven-config` | Regenera `.mvn/maven.config` con un argumento por línea. |
-| `idempiere-doctor` | Valida el entorno y devuelve estado no cero ante fallos. |
+| `mvn12 [arguments]` | Runs Maven 3.9.11 with isolated Java and repository settings. |
+| `eclipse-start` | Opens Eclipse with the fixed workspace. |
+| `eclipse-here` | Compatibility alias for `eclipse-start`. |
+| `eclipse-choose` | Opens Eclipse with the workspace chooser. |
+| `idempiere-root` | Opens a new shell in the sources; requires the clone. |
+| `idempiere-clone` | Clones the official branch over the network without overwriting content. |
+| `idempiere-fix-maven-config` | Regenerates `.mvn/maven.config` with one argument per line. |
+| `idempiere-doctor` | Validates the environment and returns a non-zero status on failures. |
 
-El formato de `maven.config` generado es compatible con Maven 3.9: la opción `-s`, su valor y `-Dmaven.repo.local=...` se escriben como argumentos separados. El comando modifica ese archivo dentro del clon.
+The generated `maven.config` format is compatible with Maven 3.9: the `-s` option, its value, and `-Dmaven.repo.local=...` are written as separate arguments. The command modifies that file inside the clone.
 
-## Diagnóstico y mantenimiento
+## Diagnosis and maintenance
 
 ```sh
 idempiere-doctor
 ```
 
-El doctor revisa Java 17, Maven 3.9.11, `settings.xml`, repositorio local, Eclipse, Git, `curl`, wrappers, rama, `.mvn`, plataforma objetivo, revisión y otros metadatos observables en el POM. El análisis del POM es estático.
+The doctor checks Java 17, Maven 3.9.11, `settings.xml`, the local repository, Eclipse, Git, `curl`, wrappers, branch, `.mvn`, target platform, revision, and other metadata observable in the POM. POM inspection is static.
 
-Tras cambiar `.envrc`, autorícelo otra vez. Los wrappers son regenerables: cualquier corrección permanente debe hacerse en `.envrc`.
+After changing `.envrc`, authorize it again. Wrappers are reproducible, so permanent corrections must be made in `.envrc`.
 
-El `.gitignore` excluye `.local-bin`, `.m2`, `.p2`, Maven, Eclipse, fuentes, `workspace-12` y el antiguo `workspace/`.
+The `.gitignore` excludes `.local-bin`, `.m2`, `.p2`, Maven, Eclipse, sources, `workspace-12`, and the legacy `workspace/` directory.
 
-## Límites
+## Limitations
 
-- El asistente usa el repositorio oficial y no configura automáticamente un fork o `upstream`.
-- Maven y Eclipse se aportan manualmente.
-- La primera resolución de dependencias requiere red.
-- La fuente de verdad es [`.envrc`](.envrc).
+- The helper uses the official repository and does not automatically configure a fork or `upstream`.
+- Maven and Eclipse must be supplied manually.
+- The first dependency resolution requires network access.
+- [`.envrc`](.envrc) is the source of truth.

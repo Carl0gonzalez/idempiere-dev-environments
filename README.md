@@ -1,49 +1,51 @@
-# Entornos aislados de desarrollo para iDempiere
+# Isolated development environments for iDempiere
 
-Este repositorio reúne configuraciones `direnv` para trabajar con varias versiones de iDempiere sin mezclar Java, Maven, repositorios de dependencias, instalaciones de Eclipse ni workspaces. Cada subdirectorio es un entorno independiente y su archivo `.envrc` es la fuente de verdad.
+[Spanish version](README.es.md)
 
-![Entorno aislado de desarrollo para iDempiere 13](assets/idempiere13-entorno-aislado.png)
+This repository provides `direnv` configurations for working with multiple iDempiere versions without mixing Java, Maven, dependency repositories, Eclipse installations, or workspaces. Each subdirectory is an independent environment, and its `.envrc` file is the source of truth.
 
-## Versiones disponibles
+![Isolated development environment for iDempiere 13](assets/idempiere13-entorno-aislado.png)
 
-| Directorio | Rama de iDempiere | Java | Maven | Comando de build | Git asistido |
+## Available versions
+
+| Directory | iDempiere branch | Java | Maven | Build command | Assisted Git model |
 |---|---|---:|---|---|---|
-| [`iDempiere8.2`](iDempiere8.2/README.md) | `release-8.2` | 11 | local 3.6.3 | `mvn82` | repositorio oficial |
-| [`iDempiere10`](iDempiere10/README.md) | `release-10` | 11 | local 3.6.3 | `mvn10` | repositorio oficial |
-| [`iDempiere12`](iDempiere12/README.md) | `release-12` | 17 | local 3.9.11 | `mvn12` | repositorio oficial |
-| [`iDempiere13`](iDempiere13/README.md) | `release-13` | 17 | Maven Wrapper del proyecto | `mvn13` | oficial o fork |
+| [`iDempiere8.2`](iDempiere8.2/README.md) | `release-8.2` | 11 | local 3.6.3 | `mvn82` | official repository |
+| [`iDempiere10`](iDempiere10/README.md) | `release-10` | 11 | local 3.6.3 | `mvn10` | official repository |
+| [`iDempiere12`](iDempiere12/README.md) | `release-12` | 17 | local 3.9.11 | `mvn12` | official repository |
+| [`iDempiere13`](iDempiere13/README.md) | `release-13` | 17 | project Maven Wrapper | `mvn13` | official or fork |
 
-Las versiones indicadas para Maven local son las distribuciones que espera cada `.envrc`. En la versión 13, la versión efectiva la determina `sources/idempiere/.mvn/wrapper/maven-wrapper.properties` una vez clonado el proyecto.
+The listed local Maven versions are the distributions expected by each `.envrc`. For version 13, the effective version is determined by `sources/idempiere/.mvn/wrapper/maven-wrapper.properties` after the project has been cloned.
 
-## Requisitos
+## Requirements
 
-- Linux y una shell compatible con Bash.
-- `direnv`, integrado con la shell.
-- Git; acceso de red para clonar y descargar dependencias.
-- JDK 11 para iDempiere 8.2 y 10.
-- JDK 17 para iDempiere 12 y 13.
-- Eclipse instalado manualmente en el directorio `eclipse/` del entorno que se utilizará.
-- Maven descomprimido manualmente en `apache-maven-3.6.3/` para 8.2 y 10, o en `apache-maven-3.9.11/` para 12.
+- Linux and a Bash-compatible shell.
+- `direnv`, integrated with the shell.
+- Git and network access for cloning and downloading dependencies.
+- JDK 11 for iDempiere 8.2 and 10.
+- JDK 17 for iDempiere 12 and 13.
+- Eclipse installed manually in the `eclipse/` directory of the environment being used.
+- Maven extracted manually into `apache-maven-3.6.3/` for 8.2 and 10, or `apache-maven-3.9.11/` for 12.
 
-El proyecto no instala Java, Maven ni Eclipse. Tampoco clona las fuentes durante `direnv allow`.
+This project does not install Java, Maven, or Eclipse. It also does not clone sources during `direnv allow`.
 
-Configure una sola vez el hook de `direnv` correspondiente a su shell. Por ejemplo, para Zsh:
+Configure the `direnv` hook for your shell once. For example, with Zsh:
 
 ```sh
 echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
 exec zsh
 ```
 
-## Puesta en marcha
+## Getting started
 
-Clone este repositorio y entre en él:
+Clone this repository and enter it:
 
 ```sh
 git clone git@github.com:Carl0gonzalez/idempiere-dev-environments.git
 cd idempiere-dev-environments
 ```
 
-Elija una versión y entre en su directorio. Por ejemplo:
+Choose a version and enter its directory. For example:
 
 ```sh
 cd iDempiere13
@@ -55,93 +57,93 @@ mvn13 verify
 eclipse-start
 ```
 
-Para otra versión, cambie el directorio y el comando Maven según la tabla. En 8.2, 10 y 12, coloque antes la distribución Maven esperada en el directorio indicado. En todos los casos, coloque Eclipse de forma que exista `eclipse/eclipse`.
+For another version, change the directory and Maven command according to the table. For 8.2, 10, and 12, first place the expected Maven distribution in the indicated directory. In every environment, install Eclipse so that `eclipse/eclipse` exists.
 
-`direnv allow` realiza tareas locales y repetibles:
+`direnv allow` performs local, repeatable setup tasks:
 
-- selecciona el JDK compatible;
-- define las rutas del entorno;
-- crea `.m2`, `.p2`, `.local-bin`, `sources` y el workspace;
-- genera un `settings.xml` Maven local cuando falta;
-- regenera los comandos auxiliares y los añade temporalmente a `PATH`.
+- selects the compatible JDK;
+- defines environment paths;
+- creates `.m2`, `.p2`, `.local-bin`, `sources`, and the workspace;
+- creates a local Maven `settings.xml` when missing;
+- regenerates helper commands and temporarily adds them to `PATH`.
 
-No descarga componentes ni modifica una instalación Maven o Eclipse global.
+It does not download components or modify a global Maven or Eclipse installation.
 
-## Distribución de cada entorno
+## Environment layout
 
 ```text
 iDempiereXX/
-├── .envrc                 configuración versionada
-├── .gitignore             exclusiones locales de la versión
-├── .local-bin/            comandos generados
-├── .m2/                   configuración y repositorio Maven aislados
-├── .p2/                   configuración P2 aislada
-├── eclipse/               instalación local aportada por el usuario
-├── sources/idempiere/     clon de las fuentes
-└── workspace-XX/          workspace de Eclipse
+├── .envrc                 versioned configuration
+├── .gitignore             version-specific local exclusions
+├── .local-bin/            generated commands
+├── .m2/                   isolated Maven configuration and repository
+├── .p2/                   isolated P2 configuration
+├── eclipse/               local installation supplied by the user
+├── sources/idempiere/     source clone
+└── workspace-XX/          Eclipse workspace
 ```
 
-Las carpetas generadas, las fuentes clonadas, las herramientas locales y la configuración Git privada están excluidas mediante `.gitignore`. Los archivos `.envrc` y los README sí deben conservarse en el repositorio.
+Generated directories, cloned sources, local tools, and private Git configuration are excluded through `.gitignore`. The `.envrc` files and README documents must remain versioned.
 
-## Comandos comunes
+## Common commands
 
-| Comando | Función |
+| Command | Purpose |
 |---|---|
-| `idempiere-clone` | Clona la rama prevista en `sources/idempiere`; se niega a sobrescribir un destino no vacío. |
-| `idempiere-root` | Abre una nueva shell situada en las fuentes de iDempiere. |
-| `idempiere-doctor` | Comprueba Java, Maven, Git, Eclipse, rutas y metadatos disponibles. Devuelve un estado distinto de cero si detecta fallos. |
-| `eclipse-start` | Inicia Eclipse con el JDK, workspace y configuración P2 del entorno. |
-| `eclipse-choose` | Inicia Eclipse mostrando el selector de workspace y proponiendo el workspace aislado. |
+| `idempiere-clone` | Clones the expected branch into `sources/idempiere`; refuses to overwrite a non-empty destination. |
+| `idempiere-root` | Opens a new shell located in the iDempiere sources. |
+| `idempiere-doctor` | Checks Java, Maven, Git, Eclipse, paths, and available metadata. Returns a non-zero status when failures are detected. |
+| `eclipse-start` | Starts Eclipse with the environment JDK, workspace, and P2 configuration. |
+| `eclipse-choose` | Starts Eclipse with the workspace chooser and proposes the isolated workspace. |
 
-Las versiones 8.2, 10 y 12 también incluyen `idempiere-fix-maven-config`, que regenera `sources/idempiere/.mvn/maven.config` con el repositorio y `settings.xml` aislados. La versión 12 conserva además `eclipse-here` como alias de `eclipse-start`.
+Versions 8.2, 10, and 12 also provide `idempiere-fix-maven-config`, which regenerates `sources/idempiere/.mvn/maven.config` with the isolated repository and `settings.xml`. Version 12 additionally preserves `eclipse-here` as an alias for `eclipse-start`.
 
-iDempiere 13 añade un flujo Git seguro para repositorio oficial o fork: `idempiere-remotes`, `idempiere-sync-upstream` e `idempiere-new-feature <rama>`. Consulte su [guía específica](iDempiere13/README.md) antes de sincronizar, porque en modo fork la sincronización también publica la rama base en `origin`.
+iDempiere 13 adds a safe Git workflow for an official repository or personal fork: `idempiere-remotes`, `idempiere-sync-upstream`, and `idempiere-new-feature <branch>`. Read its [version-specific guide](iDempiere13/README.md) before synchronizing because, in fork mode, synchronization also pushes the base branch to `origin`.
 
-## Flujo diario
+## Daily workflow
 
 ```sh
 cd iDempiere12
-direnv allow                 # sólo la primera vez o tras cambiar .envrc
+direnv allow                 # only the first time or after changing .envrc
 idempiere-doctor
 idempiere-root
 ```
 
-Desde la shell abierta en las fuentes puede trabajar normalmente. Para construir desde cualquier ruta del entorno use el wrapper de la versión, por ejemplo:
+From the shell opened in the sources, work normally. To build from any location inside the environment, use its version-specific wrapper, for example:
 
 ```sh
 mvn12 clean verify
 ```
 
-Al salir del directorio, `direnv` retira las variables y el `PATH` específicos. Al cambiar de versión, entre en el otro subdirectorio y deje que `direnv` cargue su configuración.
+When you leave the directory, `direnv` removes its variables and `PATH` entries. To switch versions, enter another subdirectory and let `direnv` load that environment.
 
-## Diagnóstico rápido
+## Quick diagnosis
 
-Ejecute primero:
+Run this first:
 
 ```sh
 idempiere-doctor
 ```
 
-Problemas habituales:
+Common issues:
 
-- **El entorno no se activa:** confirme que el hook de `direnv` está cargado y ejecute `direnv allow`.
-- **Java incompatible o ausente:** instale el JDK requerido en una de las rutas de sistema reconocidas por el `.envrc`.
-- **Maven no existe:** en 8.2, 10 o 12, revise que la distribución esté en el nombre exacto mostrado en la tabla.
-- **`mvn13` no encuentra `mvnw`:** ejecute primero `idempiere-clone`.
-- **Eclipse no inicia:** compruebe que `eclipse/eclipse` existe y es ejecutable.
-- **Destino de clonación no vacío:** revise manualmente `sources/idempiere`; el asistente no lo borra ni lo reemplaza.
-- **Cambió `.envrc`:** autorice de nuevo con `direnv allow` y vuelva a ejecutar el doctor.
+- **The environment does not activate:** verify that the `direnv` hook is loaded and run `direnv allow`.
+- **Java is missing or incompatible:** install the required JDK in one of the system paths recognized by `.envrc`.
+- **Maven does not exist:** for 8.2, 10, or 12, verify the exact distribution directory shown in the table.
+- **`mvn13` cannot find `mvnw`:** run `idempiere-clone` first.
+- **Eclipse does not start:** verify that `eclipse/eclipse` exists and is executable.
+- **The clone destination is not empty:** inspect `sources/idempiere` manually; the helper never deletes or replaces it.
+- **`.envrc` changed:** authorize it again with `direnv allow` and rerun the doctor.
 
-## Seguridad y mantenimiento
+## Security and maintenance
 
-- Revise siempre los cambios de `.envrc` antes de autorizarlos: `direnv allow` ejecuta ese archivo en la shell.
-- No guarde credenciales en `.envrc`, `settings.xml` ni `.idempiere-git.env`.
-- No reutilice `.m2`, `.p2`, Eclipse o workspaces entre versiones.
-- Los wrappers de `.local-bin` son generados; corrija su plantilla en `.envrc`, no el archivo generado.
-- Para comprobar que una modificación sigue siendo idempotente, recargue dos veces y verifique que `PATH` y `MAVEN_OPTS` no acumulen entradas.
+- Always review `.envrc` changes before authorizing them: `direnv allow` executes that file in your shell.
+- Do not store credentials in `.envrc`, `settings.xml`, or `.idempiere-git.env`.
+- Do not share `.m2`, `.p2`, Eclipse installations, or workspaces between versions.
+- The wrappers in `.local-bin` are generated; fix their templates in `.envrc`, not the generated files.
+- To verify that a modification remains idempotent, reload twice and check that `PATH` and `MAVEN_OPTS` do not accumulate entries.
 
-La documentación detallada de cada versión describe sus diferencias, comandos y condiciones de uso. Si existe una discrepancia, prevalece el `.envrc` de esa versión.
+The detailed documentation for each version describes its differences, commands, and usage conditions. If documentation and implementation disagree, the version's `.envrc` takes precedence.
 
-## Licencia
+## License
 
-Este proyecto se distribuye bajo la [licencia MIT](LICENSE). Copyright (c) 2026 Carlo González.
+This project is distributed under the [MIT License](LICENSE). Copyright (c) 2026 Carlo González.

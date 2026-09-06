@@ -1,60 +1,60 @@
-# Entorno aislado de iDempiere 13
+# Isolated iDempiere 13 environment
 
-Configuración reproducible de desarrollo local para la rama `release-13`, basada en `direnv`. Mantiene separados Java 17, Maven Wrapper, repositorio de dependencias, P2, Eclipse, workspace, fuentes y configuración Git.
+[Spanish version](README.es.md) · [Back to the main guide](../README.md)
 
-[Volver a la guía general](../README.md)
+This reproducible `direnv`-based local development configuration targets the `release-13` branch. It keeps Java 17, Maven Wrapper, the dependency repository, P2, Eclipse, the workspace, sources, and Git configuration isolated.
 
-## Qué resuelve
+## What it provides
 
-- Selecciona un JDK 17 compatible entre rutas conocidas del sistema.
-- Usa siempre el Maven Wrapper incluido en el clon de iDempiere.
-- Aísla la caché y configuración Maven en `.m2/`.
-- Aísla Eclipse, P2 y el workspace de la versión 13.
-- Genera comandos reproducibles en `.local-bin/`.
-- Permite clonar el repositorio oficial o un fork personal.
-- Valida remotos y evita sincronizaciones destructivas.
-- Tolera rutas del entorno que contengan espacios.
-- Evita duplicar en `MAVEN_OPTS` la opción administrada del repositorio local al recargar.
+- Selects a compatible JDK 17 from known system paths.
+- Always uses the Maven Wrapper included in the iDempiere clone.
+- Isolates the Maven cache and configuration in `.m2/`.
+- Isolates Eclipse, P2, and the version 13 workspace.
+- Generates reproducible commands in `.local-bin/`.
+- Supports cloning either the official repository or a personal fork.
+- Validates remotes and prevents destructive synchronization.
+- Supports environment paths containing spaces.
+- Prevents its managed Maven repository option from accumulating in `MAVEN_OPTS` after reloads.
 
-La carga del entorno no instala Java o Eclipse, no clona las fuentes y no ejecuta una construcción Maven.
+Loading the environment does not install Java or Eclipse, clone the sources, or run a Maven build.
 
-## Resumen técnico
+## Technical summary
 
-| Componente | Configuración |
+| Component | Configuration |
 |---|---|
-| Rama | `release-13` |
+| Branch | `release-13` |
 | Java | JDK 17 |
 | Maven | `sources/idempiere/mvnw` |
-| Maven esperado por el doctor | 3.9.10 en `maven-wrapper.properties` |
-| Fuentes | `sources/idempiere/` |
+| Maven version expected by the doctor | 3.9.10 in `maven-wrapper.properties` |
+| Sources | `sources/idempiere/` |
 | Workspace | `workspace-13/` |
-| Usuario/caché Maven | `.m2/` |
-| Repositorio Maven | `.m2/repository/` |
-| Configuración P2 | `.p2/configuration/` |
-| Configuración Git local | `.idempiere-git.env` |
+| Maven user home/cache | `.m2/` |
+| Maven repository | `.m2/repository/` |
+| P2 configuration | `.p2/configuration/` |
+| Local Git configuration | `.idempiere-git.env` |
 
-La versión efectiva de Maven no puede confirmarse hasta que exista el clon y se pueda leer su archivo de propiedades del wrapper. El entorno no instala una distribución Maven independiente.
+The effective Maven version cannot be confirmed until the clone exists and its wrapper properties file can be read. The environment does not install a separate Maven distribution.
 
-## Requisitos
+## Requirements
 
-- Linux y shell compatible con Bash.
-- `direnv` integrado con la shell.
+- Linux and a Bash-compatible shell.
+- `direnv` integrated with the shell.
 - Git.
-- JDK 17 en una ruta detectada por `.envrc`.
-- Eclipse aportado por el usuario si se utilizará el IDE.
-- Red para clonar, sincronizar o descargar dependencias.
-- Credenciales Git cuando el fork o una publicación las requieran.
+- JDK 17 in a path detected by `.envrc`.
+- Eclipse supplied by the user when the IDE is needed.
+- Network access for cloning, synchronizing, or downloading dependencies.
+- Git credentials when a fork or push operation requires them.
 
-Un ejemplo de integración de `direnv` con Zsh:
+Example `direnv` integration for Zsh:
 
 ```sh
 echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
 exec zsh
 ```
 
-Revise siempre `.envrc` antes de autorizarlo, ya que `direnv allow` permite ejecutar su contenido en la shell.
+Always review `.envrc` before authorizing it because `direnv allow` permits the file to execute in your shell.
 
-## Primera carga
+## First load
 
 ```sh
 cd iDempiere13
@@ -62,7 +62,7 @@ direnv allow
 idempiere-doctor
 ```
 
-Durante la carga se crean, si faltan:
+Loading creates these paths when missing:
 
 ```text
 .local-bin/
@@ -74,81 +74,81 @@ sources/
 workspace-13/
 ```
 
-También se regeneran los nueve wrappers documentados más abajo. `eclipse/` se usa como ruta esperada, pero el entorno no crea ni instala allí una distribución funcional de Eclipse.
+It also regenerates the nine wrappers documented below. `eclipse/` is an expected location, but the environment does not create or install a working Eclipse distribution there.
 
-Después de modificar `.envrc`:
+After modifying `.envrc`, run:
 
 ```sh
 direnv allow
 ```
 
-Después de que un comando cambie sólo la configuración persistida, como el primer clon:
+After a command changes only persisted configuration, as happens after the first clone, run:
 
 ```sh
 direnv reload
 ```
 
-## Clonar el repositorio
+## Clone the repository
 
 ```sh
 idempiere-clone
 ```
 
-El comando pregunta por uno de estos modelos:
+The command asks you to select one of two models.
 
-### Modo `official`
+### `official` mode
 
-- `origin` apunta a `https://github.com/idempiere/idempiere.git`.
-- No se configura `upstream`.
-- Es apropiado para consultar o construir directamente la rama oficial.
+- `origin` points to `https://github.com/idempiere/idempiere.git`.
+- No `upstream` remote is configured.
+- This is suitable for inspecting or building the official branch directly.
 
-### Modo `fork`
+### `fork` mode
 
-- `origin` apunta al fork personal indicado por el usuario.
-- `upstream` apunta al repositorio oficial.
-- Es el modelo previsto para preparar contribuciones.
+- `origin` points to the personal fork supplied by the user.
+- `upstream` points to the official repository.
+- This is the intended model for preparing contributions.
 
-La URL del fork debe usar HTTP(S), `ssh://` o la forma SSH `git@host:ruta`. No puede contener espacios ni controles. El asistente clona `release-13` en `sources/idempiere`, configura los remotos y guarda el modelo en `.idempiere-git.env`.
+The fork URL must use HTTP(S), `ssh://`, or the `git@host:path` SSH form. It cannot contain spaces or control characters. The helper clones `release-13` into `sources/idempiere`, configures the remotes, and stores the selected model in `.idempiere-git.env`.
 
-Si el destino ya contiene un repositorio, el comando exige que sus remotos coincidan con la configuración persistida. Si el destino contiene otros archivos, termina sin sobrescribirlos.
+If the destination already contains a repository, the command requires its remotes to match the persisted configuration. If the destination contains other files, it exits without overwriting them.
 
-## Configuración Git persistida
+## Persisted Git configuration
 
-El archivo local `.idempiere-git.env` tiene formato declarativo:
+The local `.idempiere-git.env` file uses a declarative format:
 
 ```dotenv
 IDEMPIERE_GIT_MODE=fork
-IDEMPIERE_ORIGIN_URL=git@github.com:usuario/idempiere.git
+IDEMPIERE_ORIGIN_URL=git@github.com:user/idempiere.git
 IDEMPIERE_UPSTREAM_URL=https://github.com/idempiere/idempiere.git
 ```
 
-El escritor usa un archivo temporal, lo mueve de forma atómica y asigna permisos `600`. El lector no evalúa el contenido como código de shell. Por compatibilidad acepta el prefijo histórico `export`, pero el formato nuevo no lo genera.
+The writer creates a temporary file, moves it atomically, and applies `600` permissions. The reader does not evaluate its contents as shell code. For compatibility it accepts the legacy `export` prefix, but the current writer does not generate it.
 
-Este archivo está excluido de Git. No incluya credenciales en las URL; use el gestor de credenciales o las claves SSH del sistema.
+This file is excluded from Git. Do not embed credentials in URLs; use the system credential manager or SSH keys.
 
-Para comprobar el resultado:
+Verify the resulting setup with:
 
 ```sh
 direnv reload
 idempiere-remotes
 ```
 
-## Maven Wrapper y construcción
+## Maven Wrapper and builds
 
 ```sh
 mvn13 verify
 ```
 
-`mvn13`:
+`mvn13` performs the following operations:
 
-1. comprueba que `sources/idempiere/mvnw` sea ejecutable;
-2. cambia al directorio del clon;
-3. fija `JAVA_HOME` y `MAVEN_USER_HOME` del entorno;
-4. activa el modo Java headless para Maven;
-5. pasa `.m2/settings.xml` y `.m2/repository` de forma explícita;
-6. entrega al wrapper todos los argumentos recibidos.
+1. verifies that `sources/idempiere/mvnw` is executable;
+2. changes to the clone directory;
+3. sets the environment's `JAVA_HOME` and `MAVEN_USER_HOME`;
+4. enables Java headless mode for Maven;
+5. explicitly passes `.m2/settings.xml` and `.m2/repository`;
+6. forwards every received argument to the wrapper.
 
-Otros ejemplos:
+Additional examples:
 
 ```sh
 mvn13 validate
@@ -156,59 +156,59 @@ mvn13 clean verify
 mvn13 -DskipTests verify
 ```
 
-El wrapper puede descargar Maven y dependencias durante la primera ejecución. No utilice un `mvn` global si necesita conservar el aislamiento.
+The wrapper may download Maven and dependencies during its first execution. Do not use a global `mvn` command when isolation must be preserved.
 
-El `.envrc` elimina copias previas de su opción administrada `-Dmaven.repo.local=...` antes de añadir una sola copia a `MAVEN_OPTS`; las demás opciones heredadas se conservan.
+The `.envrc` removes previous copies of its managed `-Dmaven.repo.local=...` option before adding exactly one copy to `MAVEN_OPTS`; all other inherited options are preserved.
 
 ## Eclipse
 
-Coloque una instalación compatible de Eclipse en `eclipse/`, de forma que exista:
+Place a compatible Eclipse installation in `eclipse/` so this executable exists:
 
 ```text
 eclipse/eclipse
 ```
 
-Para usar siempre el workspace aislado:
+To always use the isolated workspace:
 
 ```sh
 eclipse-start
 ```
 
-Para mostrar el selector de workspace:
+To display the workspace chooser:
 
 ```sh
 eclipse-choose
 ```
 
-Ambos comandos fijan el ejecutable de Java 17, `.p2/configuration` y `GDK_BACKEND=x11`. `eclipse-start` usa directamente `workspace-13`; `eclipse-choose` usa `@noDefault` y lo propone como valor predeterminado.
+Both commands fix the Java 17 executable, `.p2/configuration`, and `GDK_BACKEND=x11`. `eclipse-start` directly uses `workspace-13`; `eclipse-choose` uses `@noDefault` and proposes the isolated workspace.
 
-Antes de importar los proyectos en Eclipse conviene materializar lo que requiera el build actual:
+Before importing projects into Eclipse, it may be useful to materialize the artifacts required by the current build:
 
 ```sh
 mvn13 validate
 ```
 
-El resultado exacto de esa fase depende del POM clonado; el entorno sólo garantiza la ejecución aislada, no un efecto semántico concreto del objetivo Maven.
+The exact result of that phase depends on the cloned POM. The environment guarantees isolated execution, not a specific semantic effect for a Maven goal.
 
-## Referencia de comandos
+## Command reference
 
-| Comando | Acción | Efectos o precondiciones relevantes |
+| Command | Action | Relevant effects or preconditions |
 |---|---|---|
-| `mvn13 [argumentos]` | Ejecuta `./mvnw` en el clon. | Requiere `mvnw`; puede usar red y escribir en `.m2`. |
-| `eclipse-start` | Abre Eclipse con `workspace-13`. | Requiere `eclipse/eclipse`. |
-| `eclipse-choose` | Abre Eclipse con selector de workspace. | Requiere `eclipse/eclipse`. |
-| `idempiere-root` | Abre una shell nueva en las fuentes. | Requiere `sources/idempiere`. |
-| `idempiere-clone` | Configura modo Git y clona `release-13`. | Es interactivo, usa red y escribe `.idempiere-git.env`. |
-| `idempiere-remotes` | Muestra modo, `origin` y `upstream`. | Falla si no hay clon o el modo no está configurado. |
-| `idempiere-sync-upstream` | Actualiza la rama base con fast-forward. | Exige árbol limpio y estar en `release-13`; en modo fork también hace `push` a `origin`. |
-| `idempiere-new-feature <rama>` | Actualiza la base y crea una rama. | Exige nombre válido, árbol limpio y remotos coherentes; usa red. |
-| `idempiere-doctor` | Ejecuta las comprobaciones del entorno. | Puede probar conectividad SSH sólo cuando `origin` usa SSH. |
+| `mvn13 [arguments]` | Runs `./mvnw` in the clone. | Requires `mvnw`; may use the network and write into `.m2`. |
+| `eclipse-start` | Opens Eclipse with `workspace-13`. | Requires `eclipse/eclipse`. |
+| `eclipse-choose` | Opens Eclipse with the workspace chooser. | Requires `eclipse/eclipse`. |
+| `idempiere-root` | Opens a new shell in the sources. | Requires `sources/idempiere`. |
+| `idempiere-clone` | Configures the Git mode and clones `release-13`. | Interactive; uses the network and writes `.idempiere-git.env`. |
+| `idempiere-remotes` | Displays mode, `origin`, and `upstream`. | Fails if there is no clone or the mode is unconfigured. |
+| `idempiere-sync-upstream` | Fast-forwards the base branch. | Requires a clean tree on `release-13`; in fork mode it also pushes to `origin`. |
+| `idempiere-new-feature <branch>` | Updates the base and creates a branch. | Requires a valid name, clean tree, and consistent remotes; uses the network. |
+| `idempiere-doctor` | Runs environment checks. | May test SSH connectivity only when `origin` uses SSH. |
 
-Todos estos archivos se generan desde `.envrc`. No edite `.local-bin` para hacer cambios permanentes.
+All these files are generated from `.envrc`. Do not edit `.local-bin` for permanent changes.
 
-## Flujo de contribución con fork
+## Fork contribution workflow
 
-Después de clonar en modo `fork` y recargar `direnv`:
+After cloning in `fork` mode and reloading `direnv`:
 
 ```sh
 idempiere-remotes
@@ -216,94 +216,94 @@ idempiere-sync-upstream
 idempiere-new-feature fix-payment-validation
 ```
 
-Trabaje y confirme los cambios en la rama nueva. La automatización no crea Pull Requests.
+Work and commit on the new branch. The automation does not create Pull Requests.
 
-`idempiere-sync-upstream` sólo opera si la rama actual es `release-13` y el árbol está limpio. Hace `fetch`, aplica `merge --ff-only` desde `upstream/release-13` y después publica `release-13` en el fork. No usa `reset`, `force push` ni integración automática con conflictos.
+`idempiere-sync-upstream` operates only when the current branch is `release-13` and the working tree is clean. It fetches, applies `merge --ff-only` from `upstream/release-13`, and then pushes `release-13` to the fork. It does not use `reset`, force push, or automatic conflict resolution.
 
-`idempiere-new-feature` valida el nombre, actualiza la rama base mediante fast-forward desde el remoto que corresponde al modo y crea la nueva rama. No publica automáticamente esa rama.
+`idempiere-new-feature` validates the name, fast-forwards the base branch from the remote appropriate to the selected mode, and creates the new branch. It does not automatically publish that branch.
 
-## Diagnóstico
+## Diagnosis
 
 ```sh
 idempiere-doctor
 ```
 
-El doctor inspecciona:
+The doctor inspects:
 
-- JDK y versión de Java;
-- Maven Wrapper y versión declarada cuando el clon existe;
-- `settings.xml`, repositorio local y caché del wrapper;
-- clon, rama, modo Git y coherencia de remotos;
-- POM, revisión, Java objetivo, Tycho y plataforma objetivo cuando son observables;
-- instalación de Eclipse, workspace y P2;
-- conectividad relevante, incluida una prueba SSH con límite de tiempo cuando corresponde.
+- the JDK and Java version;
+- Maven Wrapper and its declared version when the clone exists;
+- `settings.xml`, the local repository, and wrapper cache;
+- clone, branch, Git mode, and remote consistency;
+- POM, revision, target Java, Tycho, and target platform when observable;
+- Eclipse installation, workspace, and P2;
+- relevant connectivity, including a time-limited SSH test when applicable.
 
-Los errores incrementan el estado final y producen una salida distinta de cero. Las advertencias informativas no necesariamente bloquean el trabajo.
+Errors increase the final failure count and result in a non-zero exit status. Informational warnings do not necessarily prevent work.
 
-## Solución de problemas
+## Troubleshooting
 
-### `direnv` rechaza o no carga el entorno
+### `direnv` rejects or does not load the environment
 
-Compruebe el hook, revise el archivo y vuelva a autorizar:
+Verify the hook, review the file, and authorize it again:
 
 ```sh
 direnv allow
 ```
 
-La carga termina con error si no encuentra un ejecutable Java 17 válido.
+Loading exits with an error if it cannot find a valid Java 17 executable.
 
-### `mvn13` no encuentra `mvnw`
+### `mvn13` cannot find `mvnw`
 
-Clone primero las fuentes:
+Clone the sources first:
 
 ```sh
 idempiere-clone
 ```
 
-Si el clon existe pero `mvnw` no es ejecutable, compruebe el estado y permisos del archivo antes de modificarlos.
+If the clone exists but `mvnw` is not executable, inspect its status and permissions before changing them.
 
-### El modo Git figura como inválido o no configurado
+### Git mode is invalid or unconfigured
 
-Revise `.idempiere-git.env`, recargue y compare remotos:
+Review `.idempiere-git.env`, reload, and compare the remotes:
 
 ```sh
 direnv reload
 idempiere-remotes
 ```
 
-No ejecute la sincronización hasta que `origin` y `upstream` coincidan con el modelo elegido.
+Do not synchronize until `origin` and `upstream` match the selected model.
 
-### La sincronización se detiene
+### Synchronization stops
 
-Compruebe la rama y el árbol de trabajo:
+Check the branch and working tree:
 
 ```sh
 git -C sources/idempiere branch --show-current
 git -C sources/idempiere status --short
 ```
 
-Debe estar en `release-13` y no tener cambios sin guardar. Si el fast-forward no es posible, resuelva la divergencia manualmente; el wrapper no elige una estrategia por usted.
+You must be on `release-13` with no uncommitted changes. If a fast-forward is impossible, resolve the divergence manually; the wrapper does not choose a strategy for you.
 
-### Eclipse no inicia
+### Eclipse does not start
 
-Verifique que `eclipse/eclipse` exista y sea ejecutable. El `.envrc` define la ruta, pero no descarga Eclipse.
+Verify that `eclipse/eclipse` exists and is executable. `.envrc` defines the path but does not download Eclipse.
 
-## Archivos locales y seguridad
+## Local files and security
 
-El `.gitignore` del entorno excluye `.direnv`, `.local-bin`, `.m2`, `.p2`, `.idempiere-git.env`, Eclipse, las fuentes y `workspace-13`. La raíz del proyecto también excluye configuraciones de agentes, skills, editores y variantes recursivas de configuración local.
+The environment `.gitignore` excludes `.direnv`, `.local-bin`, `.m2`, `.p2`, `.idempiere-git.env`, Eclipse, sources, and `workspace-13`. The project root also excludes agent and skill configuration, editors, and recursive local configuration variants.
 
-No deben versionarse:
+Do not version:
 
-- dependencias o cachés Maven;
-- instalación de Eclipse y datos P2;
-- fuentes clonadas dentro del entorno;
-- workspaces y metadatos del IDE;
-- configuración Git local o credenciales.
+- Maven dependencies or caches;
+- the Eclipse installation and P2 data;
+- sources cloned inside the environment;
+- workspaces and IDE metadata;
+- local Git configuration or credentials.
 
-Sí deben versionarse `.envrc`, `.gitignore` y este README.
+Version `.envrc`, `.gitignore`, and this README.
 
-## Alcance y fuente de verdad
+## Scope and source of truth
 
-Este entorno prepara y valida herramientas locales; no instala Eclipse, no garantiza el resultado del build y no sustituye la documentación funcional de iDempiere. Los metadatos de versión sólo se confirman cuando existen en el clon.
+This environment prepares and validates local tools. It does not install Eclipse, guarantee a successful build, or replace iDempiere functional documentation. Version metadata is only confirmed when present in the clone.
 
-Ante cualquier discrepancia, prevalece [`.envrc`](.envrc). Este README debe actualizarse en el mismo cambio cuando se añadan rutas, variables, wrappers o efectos nuevos.
+If documentation and implementation disagree, [`.envrc`](.envrc) takes precedence. Update this README in the same change whenever new paths, variables, wrappers, or effects are introduced.
