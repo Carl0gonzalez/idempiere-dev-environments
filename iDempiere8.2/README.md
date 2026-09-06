@@ -22,7 +22,7 @@ This `direnv`-based local development configuration targets the `release-8.2` br
 Install `direnv`, Git, and a JDK 11, then enable the `direnv` hook in your shell. Inside this directory:
 
 1. Extract Maven 3.6.3 into `apache-maven-3.6.3/`.
-2. Install Eclipse in `eclipse/`, with its executable at `eclipse/eclipse`.
+2. Install Eclipse as `eclipse/eclipse` on Linux or `eclipse/Eclipse.app` on macOS.
 3. Authorize and diagnose the environment.
 
 ```sh
@@ -52,7 +52,7 @@ The `.envrc` preserves inherited Maven options and manages exactly one copy of `
 eclipse-start
 ```
 
-This command fixes Java 11, `workspace-8.2`, `.p2/configuration`, and `GDK_BACKEND=x11`. To choose a different workspace while keeping the isolated one as the proposed default:
+This command fixes Java 11, `workspace-8.2`, and `.p2/configuration`. It sets `GDK_BACKEND=x11` only on Linux; macOS launches the native `Eclipse.app` executable. To choose a different workspace while keeping the isolated one as the proposed default:
 
 ```sh
 eclipse-choose
@@ -85,6 +85,8 @@ The doctor checks Java, Maven, `settings.xml`, the local repository, Eclipse, Gi
 After changing `.envrc`, run `direnv allow` again. Wrappers in `.local-bin` are regenerated on every load, so permanent fixes belong in `.envrc`.
 
 The environment `.gitignore` excludes `.local-bin`, `.m2`, `.p2`, `apache-maven-3.6.3`, Eclipse, sources, and `workspace-8.2`.
+
+On macOS, `.envrc` selects JDK 11 with `/usr/libexec/java_home -v 11`. Run `/usr/libexec/java_home -V` if the JDK is not detected.
 
 ## Limitations
 

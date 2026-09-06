@@ -19,7 +19,7 @@ Las versiones indicadas para Maven local son las distribuciones que espera cada 
 
 ## Requisitos
 
-- Linux y una shell compatible con Bash.
+- Linux o macOS y una shell compatible con Bash.
 - `direnv`, integrado con la shell.
 - Git; acceso de red para clonar y descargar dependencias.
 - JDK 11 para iDempiere 8.2 y 10.
@@ -57,7 +57,7 @@ mvn13 verify
 eclipse-start
 ```
 
-Para otra versión, cambie el directorio y el comando Maven según la tabla. En 8.2, 10 y 12, coloque antes la distribución Maven esperada en el directorio indicado. En todos los casos, coloque Eclipse de forma que exista `eclipse/eclipse`.
+Para otra versión, cambie el directorio y el comando Maven según la tabla. En 8.2, 10 y 12, coloque antes la distribución Maven esperada en el directorio indicado. En Linux, instale Eclipse como `eclipse/eclipse`; en macOS, coloque `Eclipse.app` en `eclipse/Eclipse.app`.
 
 `direnv allow` realiza tareas locales y repetibles:
 
@@ -130,7 +130,7 @@ Problemas habituales:
 - **Java incompatible o ausente:** instale el JDK requerido en una de las rutas de sistema reconocidas por el `.envrc`.
 - **Maven no existe:** en 8.2, 10 o 12, revise que la distribución esté en el nombre exacto mostrado en la tabla.
 - **`mvn13` no encuentra `mvnw`:** ejecute primero `idempiere-clone`.
-- **Eclipse no inicia:** compruebe que `eclipse/eclipse` existe y es ejecutable.
+- **Eclipse no inicia:** compruebe `eclipse/eclipse` en Linux o `eclipse/Eclipse.app/Contents/MacOS/eclipse` en macOS.
 - **Destino de clonación no vacío:** revise manualmente `sources/idempiere`; el asistente no lo borra ni lo reemplaza.
 - **Cambió `.envrc`:** autorice de nuevo con `direnv allow` y vuelva a ejecutar el doctor.
 
@@ -143,6 +143,10 @@ Problemas habituales:
 - Para comprobar que una modificación sigue siendo idempotente, recargue dos veces y verifique que `PATH` y `MAVEN_OPTS` no acumulen entradas.
 
 La documentación detallada de cada versión describe sus diferencias, comandos y condiciones de uso. Si existe una discrepancia, prevalece el `.envrc` de esa versión.
+
+## Notas para macOS
+
+Los entornos detectan Darwin automáticamente, seleccionan el JDK requerido mediante `/usr/libexec/java_home`, usan el ejecutable interno de `Eclipse.app` y evitan definir la variable exclusiva de Linux `GDK_BACKEND=x11`. Se admiten instalaciones de `direnv` y Git mediante Homebrew. Para inspeccionar los JDK registrados por macOS, ejecute `/usr/libexec/java_home -V`.
 
 ## Licencia
 

@@ -6,7 +6,7 @@ This reproducible `direnv`-based local development configuration targets the `re
 
 ## What it provides
 
-- Selects a compatible JDK 17 from known system paths.
+- Selects a compatible JDK 17 from known Linux paths or the macOS Java registry.
 - Always uses the Maven Wrapper included in the iDempiere clone.
 - Isolates the Maven cache and configuration in `.m2/`.
 - Isolates Eclipse, P2, and the version 13 workspace.
@@ -37,7 +37,7 @@ The effective Maven version cannot be confirmed until the clone exists and its w
 
 ## Requirements
 
-- Linux and a Bash-compatible shell.
+- Linux or macOS and a Bash-compatible shell.
 - `direnv` integrated with the shell.
 - Git.
 - JDK 17 in a path detected by `.envrc`.
@@ -162,10 +162,11 @@ The `.envrc` removes previous copies of its managed `-Dmaven.repo.local=...` opt
 
 ## Eclipse
 
-Place a compatible Eclipse installation in `eclipse/` so this executable exists:
+Place a compatible Eclipse installation in `eclipse/`. The selected executable depends on the operating system:
 
 ```text
-eclipse/eclipse
+Linux: eclipse/eclipse
+macOS: eclipse/Eclipse.app/Contents/MacOS/eclipse
 ```
 
 To always use the isolated workspace:
@@ -180,7 +181,7 @@ To display the workspace chooser:
 eclipse-choose
 ```
 
-Both commands fix the Java 17 executable, `.p2/configuration`, and `GDK_BACKEND=x11`. `eclipse-start` directly uses `workspace-13`; `eclipse-choose` uses `@noDefault` and proposes the isolated workspace.
+Both commands fix the Java 17 executable and `.p2/configuration`. On Linux they also set `GDK_BACKEND=x11`; on macOS they launch the native application without that Linux-specific variable. `eclipse-start` directly uses `workspace-13`; `eclipse-choose` uses `@noDefault` and proposes the isolated workspace.
 
 Before importing projects into Eclipse, it may be useful to materialize the artifacts required by the current build:
 
@@ -195,8 +196,8 @@ The exact result of that phase depends on the cloned POM. The environment guaran
 | Command | Action | Relevant effects or preconditions |
 |---|---|---|
 | `mvn13 [arguments]` | Runs `./mvnw` in the clone. | Requires `mvnw`; may use the network and write into `.m2`. |
-| `eclipse-start` | Opens Eclipse with `workspace-13`. | Requires `eclipse/eclipse`. |
-| `eclipse-choose` | Opens Eclipse with the workspace chooser. | Requires `eclipse/eclipse`. |
+| `eclipse-start` | Opens Eclipse with `workspace-13`. | Requires the platform-specific Eclipse executable. |
+| `eclipse-choose` | Opens Eclipse with the workspace chooser. | Requires the platform-specific Eclipse executable. |
 | `idempiere-root` | Opens a new shell in the sources. | Requires `sources/idempiere`. |
 | `idempiere-clone` | Configures the Git mode and clones `release-13`. | Interactive; uses the network and writes `.idempiere-git.env`. |
 | `idempiere-remotes` | Displays mode, `origin`, and `upstream`. | Fails if there is no clone or the mode is unconfigured. |
@@ -286,7 +287,7 @@ You must be on `release-13` with no uncommitted changes. If a fast-forward is im
 
 ### Eclipse does not start
 
-Verify that `eclipse/eclipse` exists and is executable. `.envrc` defines the path but does not download Eclipse.
+Verify `eclipse/eclipse` on Linux or `eclipse/Eclipse.app/Contents/MacOS/eclipse` on macOS. `.envrc` defines the platform-specific path but does not download Eclipse.
 
 ## Local files and security
 

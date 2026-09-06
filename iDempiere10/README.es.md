@@ -22,7 +22,7 @@ Configuración de desarrollo local basada en `direnv` para la rama `release-10`.
 Instale `direnv`, Git y un JDK 11, y active el hook de `direnv` en su shell. Luego:
 
 1. Descomprima Maven 3.6.3 en `apache-maven-3.6.3/`.
-2. Instale Eclipse en `eclipse/`, con el ejecutable en `eclipse/eclipse`.
+2. Instale Eclipse como `eclipse/eclipse` en Linux o `eclipse/Eclipse.app` en macOS.
 3. Autorice y compruebe el entorno.
 
 ```sh
@@ -52,7 +52,7 @@ La opción `-Dmaven.repo.local=...` administrada por el entorno se elimina antes
 eclipse-start
 ```
 
-Eclipse se abre con Java 11, `workspace-10`, `.p2/configuration` y `GDK_BACKEND=x11`. Para mostrar el selector de workspace:
+Eclipse se abre con Java 11, `workspace-10` y `.p2/configuration`. `GDK_BACKEND=x11` se aplica sólo en Linux; macOS usa el ejecutable nativo de `Eclipse.app`. Para mostrar el selector de workspace:
 
 ```sh
 eclipse-choose
@@ -85,6 +85,8 @@ El diagnóstico revisa Java, Maven, `settings.xml`, repositorio local, Eclipse, 
 Después de editar `.envrc`, ejecute `direnv allow`. Los wrappers de `.local-bin` se regeneran con cada carga y no deben editarse como fuente.
 
 El `.gitignore` excluye `.local-bin`, `.m2`, `.p2`, la distribución Maven, Eclipse, las fuentes y `workspace-10`.
+
+En macOS, `.envrc` selecciona JDK 11 mediante `/usr/libexec/java_home -v 11`. Ejecute `/usr/libexec/java_home -V` si el JDK no se detecta.
 
 ## Límites
 

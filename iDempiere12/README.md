@@ -23,7 +23,7 @@ This `direnv`-based local development configuration targets the `release-12` bra
 Install `direnv`, Git, and a JDK 17, then enable the `direnv` hook. Inside this directory:
 
 1. Extract Maven 3.9.11 into `apache-maven-3.9.11/`.
-2. Install Eclipse in `eclipse/`, with its executable at `eclipse/eclipse`.
+2. Install Eclipse as `eclipse/eclipse` on Linux or `eclipse/Eclipse.app` on macOS.
 3. Authorize and diagnose the environment.
 
 ```sh
@@ -53,7 +53,7 @@ The environment manages exactly one copy of `-Drevision=12.0.0` in `MAVEN_OPTS`:
 eclipse-start
 ```
 
-The command fixes Java 17, `workspace-12`, `.p2/configuration`, and `GDK_BACKEND=x11`.
+The command fixes Java 17, `workspace-12`, and `.p2/configuration`. `GDK_BACKEND=x11` is applied only on Linux; macOS uses the native `Eclipse.app` executable.
 
 ```sh
 eclipse-choose
@@ -88,6 +88,8 @@ The doctor checks Java 17, Maven 3.9.11, `settings.xml`, the local repository, E
 After changing `.envrc`, authorize it again. Wrappers are reproducible, so permanent corrections must be made in `.envrc`.
 
 The `.gitignore` excludes `.local-bin`, `.m2`, `.p2`, Maven, Eclipse, sources, `workspace-12`, and the legacy `workspace/` directory.
+
+On macOS, `.envrc` selects JDK 17 with `/usr/libexec/java_home -v 17`. Run `/usr/libexec/java_home -V` if the JDK is not detected.
 
 ## Limitations
 
