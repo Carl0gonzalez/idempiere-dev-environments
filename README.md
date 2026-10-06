@@ -10,12 +10,13 @@ This repository provides `direnv` configurations for working with multiple iDemp
 
 | Directory | iDempiere branch | Java | Maven | Build command | Assisted Git model |
 |---|---|---:|---|---|---|
-| [`iDempiere8.2`](iDempiere8.2/README.md) | `release-8.2` | 11 | local 3.6.3 | `mvn82` | official repository |
-| [`iDempiere10`](iDempiere10/README.md) | `release-10` | 11 | local 3.6.3 | `mvn10` | official repository |
-| [`iDempiere12`](iDempiere12/README.md) | `release-12` | 17 | local 3.9.11 | `mvn12` | official repository |
+| [`iDempiere8.2`](iDempiere8.2/README.md) | `release-8.2` | 11 | local 3.6.3 | `mvn82` | official or fork |
+| [`iDempiere10`](iDempiere10/README.md) | `release-10` | 11 | local 3.6.3 | `mvn10` | official or fork |
+| [`iDempiere12`](iDempiere12/README.md) | `release-12` | 17 | local 3.9.11 | `mvn12` | official or fork |
 | [`iDempiere13`](iDempiere13/README.md) | `release-13` | 17 | project Maven Wrapper | `mvn13` | official or fork |
+| [`iDempiere14`](iDempiere14/README.md) | `master` | 17 | Maven Wrapper | `mvn14` | official or fork |
 
-The listed local Maven versions are the distributions expected by each `.envrc`. For version 13, the effective version is determined by `sources/idempiere/.mvn/wrapper/maven-wrapper.properties` after the project has been cloned.
+The listed local Maven versions are the distributions expected by each `.envrc`. For versions 13 and 14, the effective version is determined by `sources/idempiere/.mvn/wrapper/maven-wrapper.properties` after the project has been cloned.
 
 ## Requirements
 
@@ -23,7 +24,7 @@ The listed local Maven versions are the distributions expected by each `.envrc`.
 - `direnv`, integrated with the shell.
 - Git and network access for cloning and downloading dependencies.
 - JDK 11 for iDempiere 8.2 and 10.
-- JDK 17 for iDempiere 12 and 13.
+- JDK 17 for iDempiere 12, 13 and 14.
 - Eclipse installed manually in the `eclipse/` directory of the environment being used.
 - Maven extracted manually into `apache-maven-3.6.3/` for 8.2 and 10, or `apache-maven-3.9.11/` for 12.
 
@@ -97,7 +98,7 @@ Generated directories, cloned sources, local tools, and private Git configuratio
 
 Versions 8.2, 10, and 12 also provide `idempiere-fix-maven-config`, which regenerates `sources/idempiere/.mvn/maven.config` with the isolated repository and `settings.xml`. Version 12 additionally preserves `eclipse-here` as an alias for `eclipse-start`.
 
-iDempiere 13 adds a safe Git workflow for an official repository or personal fork: `idempiere-remotes`, `idempiere-sync-upstream`, and `idempiere-new-feature <branch>`. Read its [version-specific guide](iDempiere13/README.md) before synchronizing because, in fork mode, synchronization also pushes the base branch to `origin`.
+All versions include official/fork Git workflows, ES/EN help and local manuals. Synchronization updates only the local branch; publishing requires an explicit `git push`. See each version guide.
 
 ## Daily workflow
 
@@ -151,3 +152,13 @@ The environments detect Darwin automatically, select the required JDK through `/
 ## License
 
 This project is distributed under the [MIT License](LICENSE). Copyright (c) 2026 Carlo González.
+
+## Help and master
+
+`idempiere-help` lists commands. Commands accept `help`, `--help`, `-h` and `--man`; manuals are generated under `.local-share/man/`. `idempiere-doctor --network` adds the optional SSH check.
+
+iDempiere 14 tracks the evolving development branch `master`; review its metadata before changing requirements. See [its guide](iDempiere14/README.md).
+
+## Local validation
+
+Run `python3 tests/validate_envs.py` from the root. It uses temporary copies and local Git repositories; it does not build or start iDempiere.
