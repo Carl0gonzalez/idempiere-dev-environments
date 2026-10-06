@@ -7,3 +7,7 @@ apache-maven-3.6.3/
 eclipse/
 workspace-8.2/
 sources/
+
+.local-share/
+
+.idempiere-git.env

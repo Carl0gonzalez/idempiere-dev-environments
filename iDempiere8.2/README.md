@@ -1,96 +1,75 @@
-# Isolated iDempiere 8.2 environment
+# Isolated environment for iDempiere 8.2
 
-[Spanish version](README.es.md) · [Back to the main guide](../README.md)
+[Versión en español](README.es.md) · [General guide](../README.md)
 
-This `direnv`-based local development configuration targets the `release-8.2` branch. It isolates Java 11, Maven 3.6.3, the Maven repository, P2, Eclipse, the workspace, and sources from every other version.
+## Requirements and layout
 
-## Technical summary
+Linux or macOS, Bash, Git, direnv integrated with your shell and the required JDK. Supply Maven and Eclipse manually where indicated. Network and credentials are needed for cloning, downloads and publishing.
 
-| Component | Configuration |
-|---|---|
-| Branch | `release-8.2` |
-| Java | JDK 11 |
-| Maven | local `apache-maven-3.6.3/` distribution |
-| Sources | `sources/idempiere/` |
-| Workspace | `workspace-8.2/` |
-| Maven repository | `.m2/repository/` |
-| P2 configuration | `.p2/configuration/` |
-| Git repository | official iDempiere repository |
+```text
+iDempiere8.2/
+├── .envrc
+├── .m2/settings.xml
+├── .m2/repository/
+├── .local-bin/
+├── .local-share/man/
+├── .p2/configuration/
+├── eclipse/
+├── sources/idempiere/
+├── workspace-8.2/
+└── .idempiere-git.env
+```
 
-## Setup
+## Updated functionality (2026-10-06)
 
-Install `direnv`, Git, and a JDK 11, then enable the `direnv` hook in your shell. Inside this directory:
+Base branch: `release-8.2`; JDK 11; local Maven 3.6.3. Version-specific requirements are preserved.
 
-1. Extract Maven 3.6.3 into `apache-maven-3.6.3/`.
-2. Install Eclipse as `eclipse/eclipse` on Linux or `eclipse/Eclipse.app` on macOS.
-3. Authorize and diagnose the environment.
+Help is available through `idempiere-help`, `idempiere-help mvn82`, and `help`, `--help`, `-h` or `--man` as the first command argument. Messages/help use `LC_ALL`, then `LC_MESSAGES`, then `LANG`: Spanish for `es`, English otherwise. JDK selection and some configuration errors retain Spanish messages. Local manuals live in `.local-share/man/es/man1` and `en/man1`; `MANPATH` selects a language at load time. Install `man` and reload direnv after changing locale.
+
+Linux and macOS remain supported. Eclipse is expected at `eclipse/eclipse` or `eclipse/Eclipse.app/Contents/MacOS/eclipse`. Override JDK detection with `IDEMPIERE_JAVA_HOME_OVERRIDE` (or `IDEMPIERE_JAVA_HOME`); `javac` must match the required major. Reloads preserve `MAVEN_OPTS`; settings and repository paths are passed as quoted Maven arguments.
 
 ```sh
 cd iDempiere8.2
 direnv allow
-idempiere-doctor
-```
-
-Loading creates the local directories, generates `.m2/settings.xml` when missing, and rebuilds the wrappers in `.local-bin`. It does not install software or clone sources.
-
-## Clone and build
-
-```sh
+idempiere-help
 idempiere-clone
-mvn82 clean verify
-```
-
-`idempiere-clone` clones `release-8.2` from the official repository into `sources/idempiere`. If the destination already contains a repository or `pom.xml`, it is preserved; if it contains other files, the command exits without overwriting them.
-
-`mvn82` exclusively runs `apache-maven-3.6.3/bin/mvn`, enables Java headless mode for Maven, and always passes the isolated `settings.xml` and local repository.
-
-The `.envrc` preserves inherited Maven options and manages exactly one copy of `-Dmaven.repo.local=...`; repeated reloads must not accumulate that option.
-
-## Eclipse
-
-```sh
+direnv reload
+idempiere-git-check
+mvn82 verify
 eclipse-start
 ```
 
-This command fixes Java 11, `workspace-8.2`, and `.p2/configuration`. It sets `GDK_BACKEND=x11` only on Linux; macOS launches the native `Eclipse.app` executable. To choose a different workspace while keeping the isolated one as the proposed default:
+Loading creates directories, settings, wrappers and manuals. It does not install tools or clone sources. Install Maven under `apache-maven-3.6.3/`. Install Eclipse under `eclipse/`. Environment checks do not prove a successful build or runtime startup.
 
-```sh
-eclipse-choose
+### Git workflow and commands
+
+All versions now offer official/fork cloning. Official mode uses official `origin` without `upstream`. Fork mode uses your fork as `origin` and the official repository as `upstream`. `.idempiere-git.env` is parsed as data, written atomically with permissions `600`, and ignored by Git. Existing checkouts require matching configuration; remotes are never silently repaired. Nonempty clone destinations are rejected.
+
+For an existing official checkout without saved configuration, create this local file and reload:
+
+```dotenv
+IDEMPIERE_GIT_MODE=official
+IDEMPIERE_ORIGIN_URL=https://github.com/idempiere/idempiere.git
+IDEMPIERE_UPSTREAM_URL=
 ```
 
-After sources are available, the environment also prepares the compatibility link for `org.adempiere.server-feature/utils.unix` in the workspace when its target exists in the clone.
-
-## Command reference
-
-| Command | Action and conditions |
+| Command | Behavior |
 |---|---|
-| `mvn82 [arguments]` | Runs the isolated local Maven; fails if it is not installed. |
-| `eclipse-start` | Opens Eclipse with the fixed environment workspace. |
-| `eclipse-choose` | Opens the workspace chooser and proposes `workspace-8.2`. |
-| `idempiere-root` | Opens a new shell in `sources/idempiere`; requires the sources. |
-| `idempiere-clone` | Clones the official branch over the network without overwriting a non-empty destination. |
-| `idempiere-fix-maven-config` | Regenerates `.mvn/maven.config` in the clone with isolated Maven paths. |
-| `idempiere-doctor` | Checks the environment and returns a non-zero status when failures are found. |
+| `idempiere-help [command]` | Lists commands or displays help without running them. |
+| `mvn82 [arguments]` | Isolated build; may download dependencies. |
+| `eclipse-start` / `eclipse-choose` | Fixed workspace or chooser with local JDK and P2. |
+| `idempiere-root` | Opens another shell in sources; use `exit` to return. |
+| `idempiere-clone` | Interactive official/fork clone of `release-8.2`; network and saved config. |
+| `idempiere-remotes` | Displays actual remotes without changing them. |
+| `idempiere-git-check` | Rejects missing checkout, invalid mode or conflicting remotes. |
+| `idempiere-sync-upstream` | Requires clean `release-8.2`; fetch and local fast-forward only, no push. |
+| `idempiere-new-feature <branch>` | Validates name/existence, updates base, creates from remote reference; no push. |
+| `idempiere-doctor [--network]` | Local checks; nonzero for failures. SSH only with `--network`. |
 
-`idempiere-fix-maven-config` modifies a file inside the clone. Use it when the project's Maven configuration has been removed or no longer points to the local environment.
+`idempiere-fix-maven-config` remains available and modifies checkout `.mvn/maven.config`; review its diff.
 
-## Diagnosis and maintenance
+Use one branch per ticket, run appropriate checks and publish explicitly. Helpers do not create commits or PRs. Dirty worktrees, invalid remotes and non-fast-forward divergence stop the operation; no reset or force push is performed.
 
-```sh
-idempiere-doctor
-```
+Missing sources/Eclipse can be warnings before setup; conflicting Git configuration on an existing checkout and missing local Maven are failures. Diagnose JDK, permissions and Git state before reinstalling.
 
-The doctor checks Java, Maven, `settings.xml`, the local repository, Eclipse, Git, `curl`, wrappers, branch, `.mvn` configuration, target platform, and metadata available in the POM. POM checks are static; they do not run a build to derive values.
-
-After changing `.envrc`, run `direnv allow` again. Wrappers in `.local-bin` are regenerated on every load, so permanent fixes belong in `.envrc`.
-
-The environment `.gitignore` excludes `.local-bin`, `.m2`, `.p2`, `apache-maven-3.6.3`, Eclipse, sources, and `workspace-8.2`.
-
-On macOS, `.envrc` selects JDK 11 with `/usr/libexec/java_home -v 11`. Run `/usr/libexec/java_home -V` if the JDK is not detected.
-
-## Limitations
-
-- The Git helper only configures the official repository; it does not automatically manage a fork or `upstream` remote.
-- Eclipse and Maven must be supplied locally.
-- The first build needs network access for dependencies not yet present in `.m2/repository`.
-- [`.envrc`](.envrc) is the source of truth.
+Generated `.local-share/`, `.local-bin/`, `.m2/`, `.p2/`, `.direnv/`, private `.idempiere-git.env`, tools, sources and workspace are ignored. Reloads regenerate helpers/manuals; edit [`.envrc`](.envrc) for persistent changes. Keep credentials out of URLs.
