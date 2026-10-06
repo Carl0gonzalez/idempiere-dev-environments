@@ -1,96 +1,75 @@
-# Isolated iDempiere 10 environment
+# Isolated environment for iDempiere 10
 
-[Spanish version](README.es.md) · [Back to the main guide](../README.md)
+[Versión en español](README.es.md) · [General guide](../README.md)
 
-This `direnv`-based local development configuration targets the `release-10` branch. It keeps Java 11, Maven 3.6.3, dependencies, P2, Eclipse, the workspace, and sources isolated.
+## Requirements and layout
 
-## Technical summary
+Linux or macOS, Bash, Git, direnv integrated with your shell and the required JDK. Supply Maven and Eclipse manually where indicated. Network and credentials are needed for cloning, downloads and publishing.
 
-| Component | Configuration |
-|---|---|
-| Branch | `release-10` |
-| Java | JDK 11 |
-| Maven | local `apache-maven-3.6.3/` distribution |
-| Sources | `sources/idempiere/` |
-| Workspace | `workspace-10/` |
-| Maven repository | `.m2/repository/` |
-| P2 configuration | `.p2/configuration/` |
-| Git repository | official iDempiere repository |
+```text
+iDempiere10/
+├── .envrc
+├── .m2/settings.xml
+├── .m2/repository/
+├── .local-bin/
+├── .local-share/man/
+├── .p2/configuration/
+├── eclipse/
+├── sources/idempiere/
+├── workspace-10/
+└── .idempiere-git.env
+```
 
-## Setup
+## Updated functionality (2026-10-06)
 
-Install `direnv`, Git, and a JDK 11, then enable the `direnv` hook in your shell. Next:
+Base branch: `release-10`; JDK 11; local Maven 3.6.3. Version-specific requirements are preserved.
 
-1. Extract Maven 3.6.3 into `apache-maven-3.6.3/`.
-2. Install Eclipse as `eclipse/eclipse` on Linux or `eclipse/Eclipse.app` on macOS.
-3. Authorize and diagnose the environment.
+Help is available through `idempiere-help`, `idempiere-help mvn10`, and `help`, `--help`, `-h` or `--man` as the first command argument. Messages/help use `LC_ALL`, then `LC_MESSAGES`, then `LANG`: Spanish for `es`, English otherwise. JDK selection and some configuration errors retain Spanish messages. Local manuals live in `.local-share/man/es/man1` and `en/man1`; `MANPATH` selects a language at load time. Install `man` and reload direnv after changing locale.
+
+Linux and macOS remain supported. Eclipse is expected at `eclipse/eclipse` or `eclipse/Eclipse.app/Contents/MacOS/eclipse`. Override JDK detection with `IDEMPIERE_JAVA_HOME_OVERRIDE` (or `IDEMPIERE_JAVA_HOME`); `javac` must match the required major. Reloads preserve `MAVEN_OPTS`; settings and repository paths are passed as quoted Maven arguments.
 
 ```sh
 cd iDempiere10
 direnv allow
-idempiere-doctor
-```
-
-Loading creates the isolated structure, generates `.m2/settings.xml` when missing, and rebuilds the commands in `.local-bin`. It does not download Maven, Eclipse, or the sources.
-
-## Clone and build
-
-```sh
+idempiere-help
 idempiere-clone
-mvn10 clean verify
-```
-
-The clone uses the official `release-10` branch and is stored in `sources/idempiere`. The helper refuses to clone over a non-empty directory and does not delete local content.
-
-`mvn10` runs the specified local Maven, uses the selected JDK, enables headless mode only for Maven, and forces `.m2/settings.xml` and `.m2/repository` as the isolated configuration.
-
-The managed `-Dmaven.repo.local=...` option is removed before it is added again. This preserves unrelated inherited options without accumulating duplicates on each reload.
-
-## Eclipse
-
-```sh
+direnv reload
+idempiere-git-check
+mvn10 verify
 eclipse-start
 ```
 
-Eclipse starts with Java 11, `workspace-10`, and `.p2/configuration`. `GDK_BACKEND=x11` is applied only on Linux; macOS uses the native `Eclipse.app` executable. To display the workspace chooser:
+Loading creates directories, settings, wrappers and manuals. It does not install tools or clone sources. Install Maven under `apache-maven-3.6.3/`. Install Eclipse under `eclipse/`. Environment checks do not prove a successful build or runtime startup.
 
-```sh
-eclipse-choose
+### Git workflow and commands
+
+All versions now offer official/fork cloning. Official mode uses official `origin` without `upstream`. Fork mode uses your fork as `origin` and the official repository as `upstream`. `.idempiere-git.env` is parsed as data, written atomically with permissions `600`, and ignored by Git. Existing checkouts require matching configuration; remotes are never silently repaired. Nonempty clone destinations are rejected.
+
+For an existing official checkout without saved configuration, create this local file and reload:
+
+```dotenv
+IDEMPIERE_GIT_MODE=official
+IDEMPIERE_ORIGIN_URL=https://github.com/idempiere/idempiere.git
+IDEMPIERE_UPSTREAM_URL=
 ```
 
-The second command proposes the isolated workspace as the default while allowing another one to be selected.
-
-## Command reference
-
-| Command | Action and conditions |
+| Command | Behavior |
 |---|---|
-| `mvn10 [arguments]` | Runs Maven 3.6.3 with isolated configuration; fails if it is not installed. |
-| `eclipse-start` | Opens Eclipse with the fixed workspace. |
-| `eclipse-choose` | Opens Eclipse with the workspace chooser. |
-| `idempiere-root` | Opens a new shell in the sources; requires the clone. |
-| `idempiere-clone` | Clones the official branch over the network without overwriting a non-empty destination. |
-| `idempiere-fix-maven-config` | Regenerates `sources/idempiere/.mvn/maven.config`. |
-| `idempiere-doctor` | Inspects the environment and returns a non-zero status when failures are found. |
+| `idempiere-help [command]` | Lists commands or displays help without running them. |
+| `mvn10 [arguments]` | Isolated build; may download dependencies. |
+| `eclipse-start` / `eclipse-choose` | Fixed workspace or chooser with local JDK and P2. |
+| `idempiere-root` | Opens another shell in sources; use `exit` to return. |
+| `idempiere-clone` | Interactive official/fork clone of `release-10`; network and saved config. |
+| `idempiere-remotes` | Displays actual remotes without changing them. |
+| `idempiere-git-check` | Rejects missing checkout, invalid mode or conflicting remotes. |
+| `idempiere-sync-upstream` | Requires clean `release-10`; fetch and local fast-forward only, no push. |
+| `idempiere-new-feature <branch>` | Validates name/existence, updates base, creates from remote reference; no push. |
+| `idempiere-doctor [--network]` | Local checks; nonzero for failures. SSH only with `--network`. |
 
-Repairing `maven.config` deliberately writes inside the clone and fixes both the settings file and Maven repository for this environment.
+`idempiere-fix-maven-config` remains available and modifies checkout `.mvn/maven.config`; review its diff.
 
-## Diagnosis and maintenance
+Use one branch per ticket, run appropriate checks and publish explicitly. Helpers do not create commits or PRs. Dirty worktrees, invalid remotes and non-fast-forward divergence stop the operation; no reset or force push is performed.
 
-```sh
-idempiere-doctor
-```
+Missing sources/Eclipse can be warnings before setup; conflicting Git configuration on an existing checkout and missing local Maven are failures. Diagnose JDK, permissions and Git state before reinstalling.
 
-The doctor checks Java, Maven, `settings.xml`, the local repository, Eclipse, Git, `curl`, wrappers, branch, `.mvn` files, target platform, and POM metadata. POM inspection is static and does not replace a real build.
-
-After editing `.envrc`, run `direnv allow`. The wrappers in `.local-bin` are regenerated on each load and must not be edited as source files.
-
-The `.gitignore` excludes `.local-bin`, `.m2`, `.p2`, the Maven distribution, Eclipse, sources, and `workspace-10`.
-
-On macOS, `.envrc` selects JDK 11 with `/usr/libexec/java_home -v 11`. Run `/usr/libexec/java_home -V` if the JDK is not detected.
-
-## Limitations
-
-- `idempiere-clone` uses the official repository; this version does not automate a fork/upstream model.
-- Maven and Eclipse must be installed manually at their local paths.
-- Resolving missing dependencies requires network access.
-- [`.envrc`](.envrc) is the source of truth.
+Generated `.local-share/`, `.local-bin/`, `.m2/`, `.p2/`, `.direnv/`, private `.idempiere-git.env`, tools, sources and workspace are ignored. Reloads regenerate helpers/manuals; edit [`.envrc`](.envrc) for persistent changes. Keep credentials out of URLs.
