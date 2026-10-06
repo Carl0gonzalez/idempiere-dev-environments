@@ -1,99 +1,94 @@
 # Entorno aislado de iDempiere 12
 
-[English version](README.md) · [Volver a la guía general](../README.es.md)
+[English version](README.md) · [Guía general](../README.es.md)
 
-Configuración de desarrollo local basada en `direnv` para la rama `release-12`. Aísla Java 17, Maven 3.9.11, dependencias, P2, Eclipse, workspace y fuentes.
+## Requisitos y estructura
 
-## Resumen técnico
+Linux o macOS, Bash, Git, direnv integrado con su shell y el JDK correspondiente. Maven y Eclipse se aportan manualmente donde se indica. La red y las credenciales se necesitan sólo al clonar, descargar o publicar.
 
-| Componente | Configuración |
-|---|---|
-| Rama | `release-12` |
-| Revisión esperada | `12.0.0` |
-| Java | JDK 17 |
-| Maven | distribución local `apache-maven-3.9.11/` |
-| Fuentes | `sources/idempiere/` |
-| Workspace | `workspace-12/` |
-| Repositorio Maven | `.m2/repository/` |
-| Configuración P2 | `.p2/configuration/` |
-| Repositorio Git | oficial de iDempiere |
+```text
+iDempiere12/
+├── .envrc
+├── .m2/settings.xml
+├── .m2/repository/
+├── .local-bin/
+├── .local-share/man/
+├── .p2/configuration/
+├── eclipse/
+├── sources/idempiere/
+├── workspace-12/
+└── .idempiere-git.env
+```
 
-## Preparación
+## Funcionalidades actualizadas (2026-10-06)
 
-Instale `direnv`, Git y un JDK 17, y active el hook de `direnv`. Dentro de este directorio:
+La base es `release-12`, con JDK 17 y Maven local 3.9.11. Se conservan los requisitos propios de esta versión.
 
-1. Descomprima Maven 3.9.11 en `apache-maven-3.9.11/`.
-2. Instale Eclipse como `eclipse/eclipse` en Linux o `eclipse/Eclipse.app` en macOS.
-3. Autorice y compruebe el entorno.
+- Ayuda común: `idempiere-help`, `idempiere-help mvn12` y `<comando> help`, `--help`, `-h` o `--man`.
+- Mensajes y ayuda según `LC_ALL`, después `LC_MESSAGES` y finalmente `LANG`: español para `es`, inglés para los demás idiomas. La selección de JDK y algunos errores de configuración conservan mensajes en español.
+- Manuales locales ES/EN en `.local-share/man/`; `MANPATH` elige el idioma durante la carga. Requiere el programa `man`. Cambiar el locale exige `direnv reload` para actualizar esa selección.
+- Compatibilidad Linux y macOS. Eclipse: `eclipse/eclipse` o `eclipse/Eclipse.app/Contents/MacOS/eclipse`.
+- JDK configurable mediante `IDEMPIERE_JAVA_HOME_OVERRIDE` (también acepta `IDEMPIERE_JAVA_HOME`); se comprueba `javac` de la versión requerida.
+- Recargas sin añadir opciones a `MAVEN_OPTS`. Maven recibe settings y repositorio local como argumentos citados.
+
+### Primera carga y fuentes
 
 ```sh
 cd iDempiere12
 direnv allow
-idempiere-doctor
-```
-
-`direnv allow` crea la estructura local, genera `.m2/settings.xml` si falta y reconstruye `.local-bin`. No instala componentes ni clona el proyecto.
-
-## Clonar y construir
-
-```sh
+idempiere-help
 idempiere-clone
-mvn12 clean verify
-```
-
-El asistente clona `release-12` desde el repositorio oficial en `sources/idempiere`. Conserva un clon existente y se niega a escribir sobre un destino ocupado por otros archivos.
-
-`mvn12` usa siempre `apache-maven-3.9.11/bin/mvn`, el `settings.xml` y el repositorio Maven de este entorno. Java se ejecuta en modo headless sólo durante Maven.
-
-El entorno administra una sola copia de `-Drevision=12.0.0` en `MAVEN_OPTS`: primero elimina las copias previas y luego añade una, manteniendo intactas las demás opciones heredadas. La ubicación del repositorio también se pasa directamente en cada invocación de `mvn12`.
-
-## Eclipse
-
-```sh
+direnv reload
+idempiere-git-check
+mvn12 verify
 eclipse-start
 ```
 
-El comando fija Java 17, `workspace-12` y `.p2/configuration`. `GDK_BACKEND=x11` se aplica sólo en Linux; macOS usa el ejecutable nativo de `Eclipse.app`.
+`direnv allow` crea directorios, settings, wrappers y manuales; no instala herramientas ni clona. Instale Maven en `apache-maven-3.9.11/` antes del build. Instale Eclipse en `eclipse/`. Estas configuraciones preparan el entorno; no acreditan un build ni un arranque de iDempiere.
 
-```sh
-eclipse-choose
-eclipse-here
+### Git oficial y fork
+
+Todas las versiones permiten elegir repositorio oficial o fork al clonar. En modo `official`, `origin` es `https://github.com/idempiere/idempiere.git` y no hay `upstream`. En modo `fork`, `origin` es el fork y `upstream` es el oficial.
+
+La configuración se lee como datos, sin ejecutar código, desde `.idempiere-git.env`; se escribe de forma atómica con permisos `600`. Es privada y se ignora en Git. Un clon existente requiere una configuración coherente y sólo se valida. Para un clon oficial anterior sin este archivo puede crear:
+
+```dotenv
+IDEMPIERE_GIT_MODE=official
+IDEMPIERE_ORIGIN_URL=https://github.com/idempiere/idempiere.git
+IDEMPIERE_UPSTREAM_URL=
 ```
 
-`eclipse-choose` muestra el selector y propone el workspace aislado. `eclipse-here` es un alias de compatibilidad que delega en `eclipse-start`; no cambia el workspace según el directorio actual.
+Recargue y compruebe los remotos; el asistente no los corrige automáticamente. El destino no vacío se rechaza.
 
-## Comandos disponibles
-
-| Comando | Acción y condiciones |
+| Comando | Comportamiento |
 |---|---|
-| `mvn12 [argumentos]` | Ejecuta Maven 3.9.11 con Java y repositorio aislados. |
-| `eclipse-start` | Abre Eclipse con el workspace fijo. |
-| `eclipse-here` | Alias compatible de `eclipse-start`. |
-| `eclipse-choose` | Abre Eclipse con selector de workspace. |
-| `idempiere-root` | Abre una shell nueva en las fuentes; requiere el clon. |
-| `idempiere-clone` | Clona por red la rama oficial, sin sobrescribir contenido. |
-| `idempiere-fix-maven-config` | Regenera `.mvn/maven.config` con un argumento por línea. |
-| `idempiere-doctor` | Valida el entorno y devuelve estado no cero ante fallos. |
+| `idempiere-help [comando]` | Lista comandos o explica uno, sin ejecutarlo. |
+| `mvn12 [argumentos]` | Build aislado; puede descargar dependencias. |
+| `eclipse-start` / `eclipse-choose` | Workspace fijo o selector, con JDK y P2 locales. |
+| `idempiere-root` | Abre otra shell en las fuentes; `exit` vuelve a la anterior. |
+| `idempiere-clone` | Asistente oficial/fork para `release-12`; usa red y guarda configuración. |
+| `idempiere-remotes` | Muestra remotos reales sin modificarlos. |
+| `idempiere-git-check` | Falla si clon, modo o remotos no coinciden. |
+| `idempiere-sync-upstream` | Exige `release-12` y árbol limpio; fetch/fast-forward local. No hace push. |
+| `idempiere-new-feature <rama>` | Valida nombre y existencia, actualiza la base y crea desde la referencia remota; sin push. |
+| `idempiere-doctor [--network]` | Diagnóstico local; devuelve error por fallos. SSH sólo con `--network`. |
 
-El formato de `maven.config` generado es compatible con Maven 3.9: la opción `-s`, su valor y `-Dmaven.repo.local=...` se escriben como argumentos separados. El comando modifica ese archivo dentro del clon.
+También conserva `idempiere-fix-maven-config`, que modifica `.mvn/maven.config` del clon; revise su diff antes de conservarlo. `eclipse-here` es alias de `eclipse-start`.
 
-## Diagnóstico y mantenimiento
+### Contribuir
 
 ```sh
-idempiere-doctor
+idempiere-sync-upstream
+idempiere-new-feature IDEMPIERE-1234-descripcion
+mvn12 verify
 ```
 
-El doctor revisa Java 17, Maven 3.9.11, `settings.xml`, repositorio local, Eclipse, Git, `curl`, wrappers, rama, `.mvn`, plataforma objetivo, revisión y otros metadatos observables en el POM. El análisis del POM es estático.
+Trabaje en una rama por ticket, revise los cambios y publique explícitamente cuando corresponda. El asistente no crea PR ni hace commit. Si hay cambios locales, remotos incoherentes o divergencias, corrija la causa antes de repetir; no se ejecutan reset ni force push.
 
-Tras cambiar `.envrc`, autorícelo otra vez. Los wrappers son regenerables: cualquier corrección permanente debe hacerse en `.envrc`.
+### Diagnóstico y archivos locales
 
-El `.gitignore` excluye `.local-bin`, `.m2`, `.p2`, Maven, Eclipse, fuentes, `workspace-12` y el antiguo `workspace/`.
+`idempiere-doctor` distingue fallos y avisos. Clon o Eclipse ausentes pueden aparecer como avisos antes de la instalación. Configuración Git incoherente en un clon existente y Maven local ausente son fallos. Revise el JDK, los permisos del ejecutable y el árbol Git antes de instalar de nuevo.
 
-En macOS, `.envrc` selecciona JDK 17 mediante `/usr/libexec/java_home -v 17`. Ejecute `/usr/libexec/java_home -V` si el JDK no se detecta.
+Se ignoran `.local-share/`, `.local-bin/`, `.m2/`, `.p2/`, `.direnv/`, `.idempiere-git.env`, herramientas, fuentes y workspace. Los wrappers y manuales se regeneran al recargar; edite [`.envrc`](.envrc) para cambios permanentes. No guarde credenciales en las URL.
 
-## Límites
-
-- El asistente usa el repositorio oficial y no configura automáticamente un fork o `upstream`.
-- Maven y Eclipse se aportan manualmente.
-- La primera resolución de dependencias requiere red.
-- La fuente de verdad es [`.envrc`](.envrc).
+`mvn12` también pasa `-Drevision=12.0.0` como argumento para conservar el comportamiento de esta release sin modificar `MAVEN_OPTS`.

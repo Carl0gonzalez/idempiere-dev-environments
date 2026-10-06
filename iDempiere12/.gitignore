@@ -8,3 +8,7 @@ eclipse/
 workspace-12/
 workspace/
 sources/
+
+.local-share/
+
+.idempiere-git.env
